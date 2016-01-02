@@ -1,0 +1,68 @@
+//定义返回值的错误码
+//gxl 20110304 创建
+
+#ifndef _TD_MEDIA_ERROR_H_
+#define _TD_MEDIA_ERROR_H_
+
+//视频编码 10000
+#define ERROR_VENC_BASE 			10000
+#define ERROR_VENC_EXIST			ERROR_VENC_BASE+1
+#define SET_VENC_ERROR				ERROR_VENC_BASE+2
+
+
+
+
+
+//音频编码 20000
+#define ERROR_AENC_BASE 			20000
+#define	UNKNOWN_AUDIO_TYPE			ERROR_AENC_BASE+1
+#define SET_AENC_ERROR				ERROR_AENC_BASE+2
+#define TALK_IS_OPEN 		         ERROR_AENC_BASE+3
+
+
+
+
+//视频解码 30000
+#define ERROR_VDEC_BASE 			30000
+#define SET_VDEC_ERROR				ERROR_VDEC_BASE+2
+#define INVALID_DEC_CHN			ERROR_VDEC_BASE+3
+#define DEC_BUFF_FULL				ERROR_VDEC_BASE+3
+
+
+
+//音频解码 40000
+#define ERROR_ADEC_BASE 			30000
+#define SET_ADEC_ERROR				ERROR_ADEC_BASE+2
+
+
+
+
+//视频输入输出 50000
+
+#define ERROR_VIO_BASE 				50000
+#define SET_VO_ERROR				ERROR_VIO_BASE+1
+#define SET_VI_ERROR				ERROR_VIO_BASE+2
+#define	INVALID_VISIZE				ERROR_VIO_BASE+3
+
+
+//音频输入输出 0xA060XXXX
+#define ERROR_AIO_BASE 				60000
+#define SET_AO_FAIL				ERROR_AIO_BASE+1
+#define SET_AI_FAIL				ERROR_AIO_BASE+2
+#define SET_ACODEC_FAIL			ERROR_AIO_BASE+3
+
+
+
+
+
+//OSD				 60000
+#define ERROR_OSD_BASE				60000
+#define SET_OSD_FAIL				ERROR_OSD_BASE+2
+
+
+
+
+
+//MD				 0xA080XXXX
+
+#endif

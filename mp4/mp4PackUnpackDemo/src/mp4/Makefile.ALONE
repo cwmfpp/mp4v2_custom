@@ -1,0 +1,117 @@
+#mode=hi3531,hi3535,hi3536,hi3798,gcc
+#DBG					= 1
+ROOT					= .
+SRC						= $(ROOT)/src
+OBJ						= $(ROOT)/obj
+
+SDK_PATH			= $(SRC)/sdk
+SDK_SRC				= $(SDK_PATH)/src
+SDK_LIB				= $(SDK_PATH)/lib
+SDK_OBJ				= $(SDK_PATH)/obj
+
+INC						= -I$(ROOT)
+INC						+=-I$(SDK_PATH)/include/
+
+TARGET					= $(SDK_PATH)/lib/libtdmp4.so
+
+ARFLAGS					= crv
+RM						= rm -f
+
+LDFLAGS					= -Wl,-gc-sections
+CFLAGS					= -Wall -fPIC -O3
+CFLAGS					+=-Wno-unused-value -fno-strict-aliasing
+CFLAGS					+= -DALONE -DTD_MP4LOG
+
+ifeq ($(DBG),1)
+CFLAGS					+=-g2 -DTD_DEBUG
+else
+endif
+
+####################hi3531##############################
+ifeq ($(mode),hi3531)
+CROSS					= arm-hisiv100nptl-linux-
+CFLAGS					+=-DZHENGFA
+CFLAGS					+=-march=armv7-a -mcpu=cortex-a9 -mfloat-abi=softfp -mfpu=vfpv3-d16 
+SDK_LDLINK				=-L$(SDK_PATH)/lib/hi3531 -lmp4v2
+endif
+########################################################
+
+####################hi3535##############################
+ifeq ($(mode),hi3535)
+CROSS					= arm-hisiv100nptl-linux-
+CFLAGS					+= -DTD_VFS
+CFLAGS					+= -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -march=armv7-a -mcpu=cortex-a9 
+SDK_LDLINK				= -L$(SDK_PATH)/lib/hi3535 -lmp4v2 -ltdfs -lstdfs -lvfs -ldl -lpthread
+endif
+########################################################
+
+####################hi3536##############################
+ifeq ($(mode),hi3536)
+CROSS					= arm-hisiv300-linux-
+CFLAGS					+= -DTD_VFS
+CFLAGS					+= -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -mcpu=cortex-a7 -mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations 
+SDK_LDLINK				= -L$(SDK_PATH)/lib/hi3536 -lmp4v2 -ltdfs -lstdfs -lvfs -ldl -lpthread
+endif
+########################################################
+
+####################hi3798##############################
+ifeq ($(mode),hi3798)
+CROSS					= arm-hisiv200-linux-
+CFLAGS				+= -DTD_VFS
+CFLAGS				+= -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -mapcs-frame -march=armv7-a -mcpu=cortex-a9 -mfloat-abi=softfp -mfpu=vfpv3-d16 
+SDK_LDLINK		= -L$(SDK_PATH)/lib/hi3798 -lmp4v2 -ltdfs -lstdfs -lvfs -ldl -lpthread
+endif
+########################################################
+
+####################gcc#################################
+ifeq ($(mode),gcc)
+CROSS					=
+CFLAGS					+= 
+SDK_LDLINK				=-L$(SDK_PATH)/lib/gcc -lmp4v2
+endif
+########################################################
+
+CC						= $(CROSS)gcc
+AR						= $(CROSS)ar
+STRIP					= $(CROSS)strip
+
+SRCS					= $(wildcard $(SRC)/*.c)
+OBJS					= $(SRCS:%.c=%.o)
+OBJS					:=$(OBJS:$(SRC)/%=$(OBJ)/%)
+
+SDK_SRCS				= $(wildcard $(SDK_SRC)/*.c)
+SDK_OBJS				= $(SDK_SRCS:%.c=%.o)
+SDK_OBJS				:=$(SDK_OBJS:$(SDK_SRC)/%=$(SDK_OBJ)/%)
+
+COMPILE					= $(CC) $(CFLAGS) -c $< -o $@ $(INC)
+LINK					= $(CC) $(LDFLAGS) -shared -o $(TARGET) $(OBJS) $(SDK_OBJS) $(SDK_LDLINK)
+
+all : $(TARGET)
+ifeq ($(DBG), 1)
+else
+	@echo *****STRIP*****
+	$(STRIP) $(TARGET)
+	#cp $(TARGET) ./ -rf
+	@echo
+endif
+
+$(TARGET) : $(OBJS) $(SDK_OBJS)
+	@echo *****LINK*****
+	$(LINK)
+	@echo
+
+$(OBJ)/%.o : $(SRC)/%.c
+	@echo
+	cp ../../include/td_mp4.h $(SDK_PATH)/include/
+	$(COMPILE)
+	@echo
+$(SDK_OBJ)/%.o : $(SDK_SRC)/%.c
+	@echo
+	$(COMPILE)
+	@echo
+
+clean :
+	@echo
+	@echo *****CLEAN*****
+	$(RM) $(OBJ)/*.o $(SDK_OBJ)/*.o $(TARGET)
+	@echo
